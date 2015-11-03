@@ -5,7 +5,8 @@ object FPInScalaBuild extends Build {
   val opts = Project.defaultSettings ++ Seq(
     scalaVersion := "2.11.7",
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-    libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
+    libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "2.2.4" % "test",
+                                "org.scalacheck" %% "scalacheck" % "1.12.4" % "test")
   )
 
   lazy val root =
