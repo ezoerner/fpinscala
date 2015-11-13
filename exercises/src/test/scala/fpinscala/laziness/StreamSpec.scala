@@ -64,4 +64,11 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
       (strm forAll p) should === (strm.toList forall p)
     }
   }
+
+  property("takeWhileUsingFoldRight mirrors List.takeWhile") {
+    forAll(streams) { strm =>
+      val p: (Int => Boolean) = _ % 2 == 0
+      (strm takeWhileUsingFoldRight p).toList should === (strm.toList takeWhile p)
+    }
+  }
 }
