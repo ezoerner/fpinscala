@@ -41,14 +41,13 @@ sealed trait Stream[+A] {
       case Cons(h, t) => t() drop (n - 1)
     }
 
-  def takeWhile(p: A => Boolean): Stream[A] = {
-    this match {
-      case Cons(h, t) if p(h()) => Cons(h, () => t() takeWhile p)
-      case _ => Empty
-    }
+  def takeWhile(p: A => Boolean): Stream[A] = this match {
+    case Cons(h, t) if p(h()) => Cons(h, () => t() takeWhile p)
+    case _ => Empty
   }
 
-  def forAll(p: A => Boolean): Boolean = sys.error("todo")
+  def forAll(p: A => Boolean): Boolean =
+    foldRight(true)((a, b) => p(a) && b)
 
   def headOption: Option[A] = this match {
     case Empty => None

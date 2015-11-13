@@ -39,22 +39,29 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
     }
   }
 
-  property("drop(n) mimics List.drop(n)") {
+  property("drop(n) mirrors List.drop(n)") {
     forAll(streams, Gen.choose(0, 30)) { (strm, num) =>
       (strm drop num).toList should === (strm.toList drop num)
     }
   }
 
-  property("take(n) mimics List.take(n)") {
+  property("take(n) mirrors List.take(n)") {
     forAll(streams, Gen.choose(0, 30)) { (strm, num) =>
       (strm take num).toList should === (strm.toList take num)
     }
   }
 
-  property("takeWhile mimics List.takeWhile") {
+  property("takeWhile mirrors List.takeWhile") {
     forAll(streams) { strm =>
       val p: (Int => Boolean) = _ % 2 == 0
       (strm takeWhile p).toList should === (strm.toList takeWhile p)
+    }
+  }
+
+  property("forAll mirrors List.forall") {
+    forAll(streams) { strm =>
+      val p: (Int => Boolean) = _ % 2 == 0
+      (strm forAll p) should === (strm.toList forall p)
     }
   }
 }
