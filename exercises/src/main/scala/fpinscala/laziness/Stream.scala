@@ -3,6 +3,8 @@ package fpinscala.laziness
 import Stream._
 sealed trait Stream[+A] {
 
+  override def toString: String = toList.toString
+
   def toList: List[A] = this match {
     case Empty => Nil
     case Cons(h, t) => h() :: t().toList
@@ -22,17 +24,29 @@ sealed trait Stream[+A] {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
-  def take(n: Int): Stream[A] = sys.error("todo")
+
+  def take(n: Int): Stream[A] =
+    if (n == 0)
+      Empty
+    else this match {
+      case Empty => Empty
+      case Cons(h, t) => Cons(h, () => t() take (n - 1))
+    }
 
   def drop(n: Int): Stream[A] =
     if (n == 0)
       this
     else this match {
       case Empty => Empty
-      case Cons(h, t) => t().drop(n - 1)
+      case Cons(h, t) => t() drop (n - 1)
     }
 
-  def takeWhile(p: A => Boolean): Stream[A] = sys.error("todo")
+  def takeWhile(p: A => Boolean): Stream[A] = {
+    this match {
+      case Cons(h, t) if p(h()) => Cons(h, () => t() takeWhile p)
+      case _ => Empty
+    }
+  }
 
   def forAll(p: A => Boolean): Boolean = sys.error("todo")
 
