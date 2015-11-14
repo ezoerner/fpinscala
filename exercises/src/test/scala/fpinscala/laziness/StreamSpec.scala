@@ -31,8 +31,11 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
           case Nil => strm == Stream.empty
           case first :: rest =>
             strm.headOption forall (h => h == first)
-            streamEqualsList(strm.drop(1), rest)
-        }
+            strm match {
+              case Empty => false
+              case Cons(h, t) => streamEqualsList(t(), rest)
+            }
+      }
 
     forAll(streams) { strm =>
       streamEqualsList(strm, strm.toList) should ===(true)
