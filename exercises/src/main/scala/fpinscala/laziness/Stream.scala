@@ -57,6 +57,9 @@ sealed trait Stream[+A] {
     case Cons(h, t) => Some(h())
   }
 
+  def headOptionUsingFoldRight: Option[A] =
+    foldRight(Option.empty[A])((a,b) => Some(a))
+
   // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
 
