@@ -77,4 +77,32 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
       strm.headOptionUsingFoldRight should === (strm.toList.headOption)
     }
   }
+
+  property("map is equivalent to List.map") {
+    forAll(streams) { strm =>
+      val f: (Int => String) = _.toString
+      (strm map f).toList should === (strm.toList map f)
+    }
+  }
+
+  property("filter is equivalent to List.filter") {
+    forAll(streams) { strm =>
+      val p: (Int => Boolean) = _ % 2 == 0
+      (strm filter p).toList should === (strm.toList filter p)
+    }
+  }
+
+  property("append is equivalent to List.++") {
+    forAll(streams, streams) { (strm1, strm2) =>
+      (strm1 append strm2).toList should === (strm1.toList ++ strm2.toList)
+    }
+  }
+
+  property("flatMap is equivalent to List.map") {
+    forAll(streams) { strm =>
+      val fStream: (Int => Stream[String]) = n => Stream.cons(n.toString, Stream.empty)
+      val fList: (Int => List[String]) = n => n.toString :: List.empty
+      (strm flatMap fStream).toList should === (strm.toList flatMap fList)
+    }
+  }
 }
