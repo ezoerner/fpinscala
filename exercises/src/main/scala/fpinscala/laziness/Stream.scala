@@ -94,24 +94,34 @@ sealed trait Stream[+A] {
     (zipAll(s) takeWhile { case (_, bMaybe) => bMaybe.isDefined }).
       forAll { case (aMaybe, bMaybe) => aMaybe == bMaybe }
 
+  def tails: Stream[Stream[A]] = unfold(this) {
+    case Empty => None
+    case strm@Cons(_, t) => Some((strm, t()))
+  }
 
+  def hasSubsequence[B>:A](s: Stream[B]): Boolean = tails exists (_ startsWith s)
+
+  // TODO needs test
   def mapViaUnfold[B](f: A ⇒ B): Stream[B] = unfold(this) {
-    case Cons(h, t) => Some((f(h()), t()))
+    case Cons(h, t) => Some(f(h()), t())
     case _ => None
   }
 
+  // TODO needs test
   def takeViaUnfold(n: Int): Stream[A] =
     unfold(this,n) {
       case (Cons(h,t), i) if i > 0 => Some((h(), (t(), i - 1)))
       case _ => None
     }
 
+  // TODO needs test
   def takeWhileViaUnfold(p: A ⇒ Boolean): Stream[A] =
     unfold(this) {
       case Cons(h, t) if p(h())=> Some((h(), t()))
       case _ => None
     }
 
+  // TODO needs test
   def zipWith[B,C](b: Stream[B])(f: (A, B) => C): Stream[C] =
     unfold((this, b)) {
       case (Cons(ha, ta), Cons(hb, tb)) => Some((f(ha(), hb()), (ta(), tb())))
@@ -129,6 +139,7 @@ sealed trait Stream[+A] {
     }
   }
 }
+
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () ⇒ A, t: () ⇒ Stream[A]) extends Stream[A]
 
