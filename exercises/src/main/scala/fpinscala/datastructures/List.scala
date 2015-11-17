@@ -12,13 +12,13 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A]
 object List { // `List` companion object. Contains functions for creating and working with lists.
   def sum(ints: List[Int]): Int = ints match { // A function that uses pattern matching to add up a list of integers
     case Nil => 0 // The sum of the empty list is 0.
-    case Cons(x,xs) => x + sum(xs) // The sum of a list starting with `x` is `x` plus the sum of the rest of the list.
+    case Cons(a,as) => a + sum(as) // The sum of a list starting with `x` is `x` plus the sum of the rest of the list.
   }
 
   def product(ds: List[Double]): Double = ds match {
     case Nil => 1.0
     case Cons(0.0, _) => 0.0
-    case Cons(x,xs) => x * product(xs)
+    case Cons(a,as) => a * product(as)
   }
 
   def apply[A](as: A*): List[A] = // Variadic function syntax
@@ -26,9 +26,9 @@ object List { // `List` companion object. Contains functions for creating and wo
     else Cons(as.head, apply(as.tail: _*))
 
   val x = List(1,2,3,4,5) match {
-    case Cons(x, Cons(2, Cons(4, _))) => x
+    case Cons(a, Cons(2, Cons(4, _))) => a
     case Nil => 42
-    case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
+    case Cons(a, Cons(y, Cons(3, Cons(4, _)))) => a + y
     case Cons(h, t) => h + sum(t)
     case _ => 101
   }
@@ -42,7 +42,7 @@ object List { // `List` companion object. Contains functions for creating and wo
   def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B = // Utility functions
     as match {
       case Nil => z
-      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+      case Cons(a, xs) => f(a, foldRight(xs, z)(f))
     }
 
   def sum2(ns: List[Int]) =
@@ -62,12 +62,14 @@ object List { // `List` companion object. Contains functions for creating and wo
     case Cons(a, as) => Cons(h, as)
   }
 
+  @tailrec
   def drop[A](l: List[A], n: Int): List[A] = n match {
     case m if m <= 0 => l
     case o if l == Nil => Nil
     case _ => drop(tail(l), n - 1)
   }
 
+  @tailrec
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
     case Cons(h, t) if f(h) => dropWhile(t, f)
     case xs => xs
@@ -170,17 +172,16 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   // from the answers
   def addPairwise(a: List[Int], b: List[Int]): List[Int] = (a,b) match {
-    case (Nil, _) => Nil
-    case (_, Nil) => Nil
     case (Cons(h1,t1), Cons(h2,t2)) => Cons(h1+h2, addPairwise(t1,t2))
+    case _ => Nil
   }
 
   def zipWith[A, B, C](a: List[A], b: List[B])(f: (A, B) => C): List[C] = (a, b) match {
-    case (Nil, _) => Nil
-    case (_, Nil) => Nil
     case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1, h2), zipWith(t1, t2)(f))
+    case _ => Nil
   }
 
+  @tailrec
   def startsWith[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
     case (_, Nil) => true
     case (Nil, _) => false
@@ -189,6 +190,7 @@ object List { // `List` companion object. Contains functions for creating and wo
       else false
   }
 
+  @tailrec
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean =
     (sup, sub) match {
       case (_, Nil) => true
