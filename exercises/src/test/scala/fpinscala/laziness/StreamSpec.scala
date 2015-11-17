@@ -117,6 +117,7 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
   }
 
   property("infinite stream counting up from") {
+      @tailrec
       def check(countdown: Int, expected: Int, stream: Stream[Int]): Unit =
         if (countdown == 0)
           stream.headOption should ===(None)
@@ -137,6 +138,22 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
   property("verify up to 200 fibs") {
     forAll(Gen.choose(1, 200)) { n =>
       Stream.fibs.take(n).toList should === (((1 to n) map (i => fib(i))).toList)
+    }
+  }
+
+  property("unfold") {
+    // a function producing num even numbers starting with zero
+    forAll(Gen.choose(0, 100)) { num =>
+      val stream = Stream.unfold(0) { state =>
+        if (state < num) {
+          val nextState = state + 1
+          Some((nextState * 2, nextState))
+        }
+        else
+          None
+      }
+
+      stream.toList should === ((0 until num * 2 by 2).toList)
     }
   }
 }
