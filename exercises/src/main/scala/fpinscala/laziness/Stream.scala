@@ -47,7 +47,7 @@ sealed trait Stream[+A] {
     case _                    ⇒ Empty
   }
 
-  def takeWhileUsingFoldRight(p: A ⇒ Boolean): Stream[A] =
+  def takeWhileViaFoldRight(p: A ⇒ Boolean): Stream[A] =
     foldRight(empty[A])((a, b) ⇒ if (p(a)) cons(a, b) else empty)
 
   def forAll(p: A ⇒ Boolean): Boolean =
@@ -58,10 +58,10 @@ sealed trait Stream[+A] {
     case Cons(h, t) ⇒ Some(h())
   }
 
-  def headOptionUsingFoldRight: Option[A] =
+  def headOptionViaFoldRight: Option[A] =
     foldRight(Option.empty[A])((a, b) ⇒ Some(a))
 
-  // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
+  // 5.7 map, filter, append, flatmap Via foldRight. Part of the exercise is
   // writing your own function signatures.
 
   def map[B](f: A ⇒ B): Stream[B] =
@@ -126,4 +126,12 @@ object Stream {
   def unfold[A, S](z: S)(f: S ⇒ Option[(A, S)]): Stream[A] = f(z).fold(empty[A]) {
     case (a,s) => cons(a, unfold(s)(f))
   }
+
+  val fibsViaUnfold = unfold((0, 1)) { case (p0, p1) => Some((p0, (p1, p0 + p1))) }
+
+  def fromViaUnfold(n: Int): Stream[Int] = unfold(n)(s => Some((s, s + 1)))
+
+  def constantViaUnfold[A](a: A): Stream[A] = unfold(a)(_ => Some((a, a)))
+
+  val onesViaUnfold: Stream[Int] = unfold(1)(_ => Some((1, 1)))
 }

@@ -69,16 +69,16 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
     }
   }
 
-  property("takeWhileUsingFoldRight is equivalent to List.takeWhile") {
+  property("takeWhileViaFoldRight is equivalent to List.takeWhile") {
     forAll(streams) { strm ⇒
       val p: (Int ⇒ Boolean) = _ % 2 == 0
-      (strm takeWhileUsingFoldRight p).toList should ===(strm.toList takeWhile p)
+      (strm takeWhileViaFoldRight p).toList should ===(strm.toList takeWhile p)
     }
   }
 
-  property("headOptionUsingFoldRight is equivalent to List.headOption") {
+  property("headOptionViaFoldRight is equivalent to List.headOption") {
     forAll(streams) { strm ⇒
-      strm.headOptionUsingFoldRight should ===(strm.toList.headOption)
+      strm.headOptionViaFoldRight should ===(strm.toList.headOption)
     }
   }
 
@@ -154,6 +154,43 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
       }
 
       stream.toList should === ((0 until num * 2 by 2).toList)
+    }
+  }
+
+  property("verify up to 200 fibsViaUnfold") {
+    forAll(Gen.choose(1, 200)) { n =>
+      Stream.fibsViaUnfold.take(n).toList should === (((1 to n) map (i => fib(i))).toList)
+    }
+  }
+
+  property("infinite stream counting up from Via unfold") {
+    @tailrec
+    def check(countdown: Int, expected: Int, stream: Stream[Int]): Unit =
+      if (countdown == 0)
+        stream.headOption should ===(None)
+      else {
+        stream.headOption should ===(Some(expected))
+        check(countdown - 1, expected + 1, stream match {
+          case Empty      ⇒ fail("stream should not be empty")
+          case Cons(h, t) ⇒ t()
+        })
+      }
+
+    forAll(Gen.choose(0, 100), arbitrary[Int]) { (take, start) ⇒
+      val list = Stream.fromViaUnfold(start).take(take)
+      check(take, start, list)
+    }
+  }
+
+  property("infinite stream of a constant Via unfold") {
+    forAll(Gen.choose(0, 100), arbitrary[Int]) { (take, const) ⇒
+      Stream.constantViaUnfold(const).take(take).toList should ===(List.fill(take)(const))
+    }
+  }
+
+  property("infinite stream of ones Via unfold") {
+    forAll(Gen.choose(0, 100), arbitrary[Int]) { (take, const) ⇒
+      Stream.onesViaUnfold.take(take).toList should ===(List.fill(take)(1))
     }
   }
 }
