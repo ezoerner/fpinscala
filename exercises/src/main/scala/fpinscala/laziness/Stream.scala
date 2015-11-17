@@ -84,25 +84,29 @@ sealed trait Stream[+A] {
   def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
 
   def mapViaUnfold[B](f: A ⇒ B): Stream[B] = unfold(this) {
-    case Empty => None
     case Cons(h, t) => Some((f(h()), t()))
-  }
-
-  def takeViaUnfold(n: Int): Stream[A] = unfold(this) {
-    case Cons(h, t) if n > 0 => Some((h(), t().takeViaUnfold(n - 1)))
     case _ => None
   }
 
-  def takeWhileViaUnfold(p: A ⇒ Boolean): Stream[A] = unfold(this) {
-    case Cons(h, t) if p(h())=> Some((h(), t().takeWhileViaUnfold(p)))
-    case _ => None
-  }
+  def takeViaUnfold(n: Int): Stream[A] =
+    unfold(this,n) {
+      case (Cons(h,t), i) if i > 0 => Some((h(), (t(), i - 1)))
+      case _ => None
+    }
 
-  def zipWith[B,C](b: Stream[B])(f: (A, B) => C): Stream[C] = unfold((this, b)) {
-    case (Cons(ha, ta), Cons(hb, tb)) => Some((f(ha(), hb()), (ta(), tb())))
-    case _ => None
-  }
+  def takeWhileViaUnfold(p: A ⇒ Boolean): Stream[A] =
+    unfold(this) {
+      case Cons(h, t) if p(h())=> Some((h(), t()))
+      case _ => None
+    }
 
+  def zipWith[B,C](b: Stream[B])(f: (A, B) => C): Stream[C] =
+    unfold((this, b)) {
+      case (Cons(ha, ta), Cons(hb, tb)) => Some((f(ha(), hb()), (ta(), tb())))
+      case _ => None
+    }
+
+  // TODO test this vs the version in the answers
   def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] = {
     unfold((this, s2)) {
       case (Empty, Empty) => None
@@ -112,8 +116,6 @@ sealed trait Stream[+A] {
            (strmA.drop(1), strmB.drop(1))))
     }
   }
-
-
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () ⇒ A, t: () ⇒ Stream[A]) extends Stream[A]
