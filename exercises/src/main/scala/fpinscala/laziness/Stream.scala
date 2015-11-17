@@ -2,8 +2,6 @@ package fpinscala.laziness
 
 import Stream._
 
-import scala.annotation.tailrec
-
 sealed trait Stream[+A] {
 
   override def toString: String = toList.toString
@@ -120,8 +118,12 @@ object Stream {
     go(0,1)
   }
 
-  def unfold[A, S](z: S)(f: S ⇒ Option[(A, S)]): Stream[A] = f(z) match {
+  def unfold_1[A, S](z: S)(f: S ⇒ Option[(A, S)]): Stream[A] = f(z) match {
     case Some((a, s)) => cons(a, unfold(s)(f))
-    case None => Empty
+    case None => empty
+  }
+
+  def unfold[A, S](z: S)(f: S ⇒ Option[(A, S)]): Stream[A] = f(z).fold(empty[A]) {
+    case (a,s) => cons(a, unfold(s)(f))
   }
 }

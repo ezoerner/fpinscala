@@ -141,13 +141,13 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
     }
   }
 
-  property("unfold") {
-    // a function producing num even numbers starting with zero
+  property("unfold n even numbers starting with zero") {
+    // a function producing n even numbers starting with zero
     forAll(Gen.choose(0, 100)) { num =>
       val stream = Stream.unfold(0) { state =>
         if (state < num) {
           val nextState = state + 1
-          Some((nextState * 2, nextState))
+          Some((state * 2, nextState))
         }
         else
           None
