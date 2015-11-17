@@ -81,7 +81,19 @@ sealed trait Stream[+A] {
   def flatMap[B](f: A ⇒ Stream[B]): Stream[B] =
     foldRight(empty[B])((elm, accum) ⇒ f(elm) append accum)
 
-  def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
+  // TODO needs test
+  def startsWith1[B](s: Stream[B]): Boolean = (this, s) match {
+    case (_, Empty) => true
+    case (Empty, _) => false
+    case (Cons(h, t), Cons(sh, st)) => h == sh && (t() startsWith1 st())
+  }
+
+  // Hint: Try to avoid using explicit recursion. Use `zipAll` and `takeWhile`.
+  // TODO needs test
+  def startsWith[B](s: Stream[B]): Boolean =
+    (zipAll(s) takeWhile { case (_, bMaybe) => bMaybe.isDefined }).
+      forAll { case (aMaybe, bMaybe) => aMaybe == bMaybe }
+
 
   def mapViaUnfold[B](f: A ⇒ B): Stream[B] = unfold(this) {
     case Cons(h, t) => Some((f(h()), t()))
