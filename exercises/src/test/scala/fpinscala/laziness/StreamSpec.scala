@@ -193,4 +193,10 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
       Stream.onesViaUnfold.take(take).toList should ===(List.fill(take)(1))
     }
   }
+
+  property("example tails") {
+    val actual = Stream(1,2,3).tails.toList map (_.toList)
+    val expected = List(List(1,2,3), List(2,3), List(3), Nil)
+    actual should === (expected)
+  }
 }
