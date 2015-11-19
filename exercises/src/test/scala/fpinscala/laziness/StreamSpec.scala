@@ -194,9 +194,15 @@ class StreamSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matche
     }
   }
 
-  property("example tails") {
+  property("tails example") {
     val actual = Stream(1,2,3).tails.toList map (_.toList)
     val expected = List(List(1,2,3), List(2,3), List(3), Nil)
+    actual should === (expected)
+  }
+
+  property("scanRight example") {
+    val actual = Stream(1,2,3).scanRight(0)(_ + _).toList
+    val expected = List(6,5,3,0)
     actual should === (expected)
   }
 }
