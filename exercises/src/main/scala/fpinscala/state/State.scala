@@ -91,7 +91,7 @@ object RNG {
     * =Exercise 6.5=
     * Use map to reimplement double in a more elegant way. See exercise 6.2.
     */
-  val double: Rand[Double] = map(nonNegativeInt)(_ / (Int.MaxValue.toDouble + 1))
+  val _double: Rand[Double] = map(nonNegativeInt)(_ / (Int.MaxValue.toDouble + 1))
 
   /**
     * =Exercise 6.6=
@@ -102,14 +102,36 @@ object RNG {
     *   def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C]
     * }}}
     */
-  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
-    rng ⇒ {
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = rng ⇒ {
       val (a, r1) = ra(rng)
       val (b, r2) = rb(r1)
       (f(a,b), r2)
     }
 
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
+  /**
+    * =Exercise 6.7=
+    * ''Hard:'' If you can combine two RNG transitions, you should be able to combine a whole list of them.
+    * Implement `sequence` for combining a `List` of transitions into a single transition.
+    * Use it to reimplement the `ints` function you wrote before.
+    * For the latter, you can use the standard library function
+    * `List.fill(n)(x)` to make a list with `x` repeated `n` times.
+    * {{{
+    * def sequence[A](fs: List[Rand[A]]): Rand[List[A]]
+    * }}}
+    */
+  def sequenceFirstAttempt[A](fs: List[Rand[A]]): Rand[List[A]] =
+    rng ⇒
+        fs.foldRight( (List.empty[A], rng ) ) {
+          case (nextRand, (accList, accRng)) ⇒
+            val (a, rng) = nextRand(accRng)
+            (a :: accList, rng)
+        }
+
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List.empty[A])) { (nextRand, accList) ⇒ map2(nextRand, accList)(_ :: _) }
+
+  def _ints(count: Int): Rand[List[Int]] = sequence(List.fill(count)(int))
+
 
   def flatMap[A,B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
 }
