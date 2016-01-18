@@ -1,7 +1,5 @@
 package fpinscala.state
 
-import scala.annotation.tailrec
-
 
 trait RNG {
   def nextInt: (Int, RNG) // Should generate a random `Int`. We'll later define other functions in terms of `nextInt`.
@@ -132,8 +130,24 @@ object RNG {
 
   def _ints(count: Int): Rand[List[Int]] = sequence(List.fill(count)(int))
 
+  /**
+    * =Exercise 6.8=
+    * Implement `flatMap`, and then use it to implement `nonNegativeLessThan`.
+    */
+  def flatMap[A,B](f: Rand[A])(g: A => Rand[B]): Rand[B] =
+    rng => {
+      val (a, rng2) = f(rng)
+      g(a)(rng2)
+    }
 
-  def flatMap[A,B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
+  def nonNegativeLessThen(n: Int): Rand[Int] =
+    flatMap(nonNegativeInt) { i ⇒
+      val mod = i % n
+      if (i + (n-1) - mod >= 0)
+        unit(mod)
+      else
+        nonNegativeLessThen(n)
+    }
 }
 
 case class State[S,+A](run: S => (A, S)) {
@@ -153,5 +167,6 @@ case class Machine(locked: Boolean, candies: Int, coins: Int)
 
 object State {
   type Rand[A] = State[RNG, A]
+  //noinspection NotImplementedCode
   def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
 }

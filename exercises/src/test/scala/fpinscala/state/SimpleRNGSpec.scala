@@ -19,7 +19,7 @@ class SimpleRNGSpec extends PropSpec with GeneratorDrivenPropertyChecks with Mat
 
   property("6.2 double") {
     forAll(arbitrary[RNG]) { rng ⇒
-      val (n, rng2) = RNG.double(rng)
+      val (n, _) = RNG.double(rng)
       n.isInstanceOf[Double] should be (true)
       n should be >= 0.0
       n should be <  1.0
