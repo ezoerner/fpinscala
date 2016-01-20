@@ -64,6 +64,15 @@ object Par {
     * function `A => B` to one that evaluates its result asynchronously.
     */
   def asyncF[A,B](f: A => B): A => Par[B] = a ⇒ lazyUnit(f(a))
+
+  /** =Exercise 7.5=
+    * ''Hard:'' Write this function, called `sequence`.
+    * No additional primitives are required. Do not call `run`.
+    */
+  def sequence[A](ps: List[Par[A]]): Par[List[A]] =
+    map(ps.foldLeft(unit(List.empty[A])) { (parOfList, par) ⇒
+      map2(parOfList, par) { (pList, p) ⇒ p :: pList }
+    })(_.reverse)
 }
 
 object Examples {
