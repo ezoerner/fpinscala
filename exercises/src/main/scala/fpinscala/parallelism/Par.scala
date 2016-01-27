@@ -73,6 +73,23 @@ object Par {
     map(ps.foldLeft(unit(List.empty[A])) { (parOfList, par) ⇒
       map2(parOfList, par) { (pList, p) ⇒ p :: pList }
     })(_.reverse)
+
+  /** `map` over a list in parallel */
+  def parMap[A,B](ps: List[A])(f: A => B): Par[List[B]] = fork {
+    val fbs: List[Par[B]] = ps.map(asyncF(f))
+    sequence(fbs)
+  }
+
+  /** =Exercise 7.6=
+    * Implement `parFilter`, which filters elements of a list in parallel.
+    */
+  def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = fork {
+    val fbs: List[Par[Option[A]]] = as map asyncF { a ⇒
+      if (f(a)) Some(a) else None
+    }
+    val parList: Par[List[Option[A]]] = sequence(fbs)
+    map(parList)(_.flatten)
+  }
 }
 
 object Examples {
