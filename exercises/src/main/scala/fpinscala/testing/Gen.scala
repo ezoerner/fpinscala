@@ -1,5 +1,6 @@
 package fpinscala.testing
 
+import fpinscala.state.State.Rand
 import fpinscala.state._
 
 /*
@@ -21,18 +22,27 @@ object Prop {
 }
 
 object Gen {
-  def unit[A](a: => A): Gen[A] = ???
+  def unit[A](a: => A): Gen[A] = Gen(State.unit(a))
+
+  def boolean: Gen[Boolean] = Gen(State(RNG.boolean))
+
+  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = {
+    val listOfRandA: List[State[RNG,A]] = List.fill(n)(g.sample)
+    val randListOfA: State[RNG, List[A]] = State.sequence(listOfRandA)
+    Gen(randListOfA): Gen[List[A]]
+  }
+  /* can be simplified to:
+  Gen(State.sequence(List.fill(n)(g.sample)))
+  */
 
   def choose(start: Int, stopExclusive: Int): Gen[Int] = {
     val nonNegativeInt: (RNG) ⇒ (Int, RNG) = RNG.nonNegativeInt
     val state: State[RNG, Int] = State(nonNegativeInt)
     Gen(state.map(n => start + n % (stopExclusive-start)))
   }
-
-  // with implicit types, this is simplified to:
-/*
-  Gen(State(RNG.nonNegativeInt).map(n => start + n % (stopExclusive-start)))
-*/
+  /* can be simplified to:
+    Gen(State(RNG.nonNegativeInt).map(n => start + n % (stopExclusive-start)))
+  */
 }
 
 /*
@@ -46,5 +56,10 @@ trait SGen[+A] {
 
 }
 
-case class Gen[A](sample: State[RNG,A]) {
-}
+case class Gen[A](sample: State[RNG,A])
+
+/*
+// This is the same as:
+case class Gen[A](sample: Rand[A])
+*/
+

@@ -33,6 +33,9 @@ object RNG {
     case (n, rng2) ⇒ (n / (Int.MaxValue.toDouble + 1), rng2)
   }
 
+  def boolean(rng: RNG): (Boolean, RNG) =
+    rng.nextInt match { case (i,rng2) => (i%2==0,rng2) }
+
   /**
     * =Exercise 6.3=
     * Write functions to generate an `(Int, Double)` pair, a `(Double, Int)` pair,
@@ -186,6 +189,8 @@ object State {
   def set[S](s: S): State[S, Unit] = State(_ => ((), s))
 }
 import fpinscala.state.State._
+
+import scala.annotation.tailrec
 
 case class State[S,+A](run: S => (A, S)) {
 
