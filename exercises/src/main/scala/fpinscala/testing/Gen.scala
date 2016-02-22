@@ -1,6 +1,5 @@
 package fpinscala.testing
 
-import fpinscala.state.State.Rand
 import fpinscala.state._
 
 /*
@@ -45,18 +44,22 @@ object Gen {
   */
 }
 
-/*
-trait Gen[A] {
-  def map[A,B](f: A => B): Gen[B] = ???
-  def flatMap[A,B](f: A => Gen[B]): Gen[B] = ???
-}
-*/
-
 trait SGen[+A] {
 
 }
 
-case class Gen[A](sample: State[RNG,A])
+case class Gen[A](sample: State[RNG,A]) {
+  /** Exercise 8.6
+    *   Implement flatMap, and then use it to implement this more dynamic
+    *   version of listOfN. Put flatMap and listOfN in the Gen class.
+    */
+  def flatMap[B](f: A => Gen[B]): Gen[B] = Gen(sample.flatMap(a ⇒ f(a).sample))
+
+  def listOfN(size: Gen[Int]): Gen[List[A]] =
+    size flatMap { n ⇒
+      Gen.listOfN(n, this)
+    }
+}
 
 /*
 // This is the same as:
