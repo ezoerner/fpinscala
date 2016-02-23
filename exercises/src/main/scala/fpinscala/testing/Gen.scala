@@ -94,7 +94,6 @@ object Gen {
   }
 }
 
-case class SGen[+A](forSize: Int ⇒ Gen[A])
 
 case class Gen[A](sample: State[RNG,A]) {
   /** Exercise 8.6
@@ -122,3 +121,14 @@ case class Gen[A](sample: State[RNG,A]) {
 case class Gen[A](sample: Rand[A])
 */
 
+case class SGen[+A](forSize: Int ⇒ Gen[A])
+
+object SGen {
+
+  /** Exercise 8.12
+    * Implement a listOf combinator that doesn’t accept an explicit size.
+    * It should return an SGen instead of a Gen. The implementation should
+    * generate lists of the requested size.
+    */
+  def listOf[A](g: Gen[A]): SGen[List[A]] = SGen(n ⇒ g.listOfN(Gen.unit(n)))
+}
