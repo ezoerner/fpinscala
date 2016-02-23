@@ -170,10 +170,10 @@ object RNG {
 object State {
   type Rand[A] = State[RNG, A]
 
-  def unit[S,A](a: A): State[S,A] = State(s ⇒ (a, s))
+  def unit[S, A](a: A): State[S, A] = State(s ⇒ (a, s))
 
-  def sequence[S,A](fs: List[State[S,A]]): State[S,List[A]] = {
-    val z: State[S,List[A]] = unit(List.empty[A])
+  def sequence[S, A](fs: List[State[S, A]]): State[S, List[A]] = {
+    val z: State[S, List[A]] = unit(List.empty[A])
     fs.foldRight(z) { (nextState, accList) ⇒
       nextState.map2(accList)(_ :: _)
     }

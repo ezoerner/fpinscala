@@ -50,6 +50,22 @@ object Gen {
     */
   def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
     boolean flatMap (if (_) g1 else g2)
+
+  /**
+    * Exercise 8.8
+    * Implement weighted, a version of union that accepts a weight for each Gen
+    * and generates values from each Gen with probability proportional to its
+    * weight.
+    */
+  def rawRand2Gen[A](rawRand: RNG ⇒ (A, RNG)): Gen[A] = Gen(State(rawRand))
+  val double: Gen[Double] = rawRand2Gen(RNG.double)
+
+  // assumes the doubles passed in are positive
+  def weighted[A](g1: (Gen[A],Double), g2: (Gen[A],Double)): Gen[A] = {
+    val totalWeight = g1._2 + g2._2
+    val weight1 = g1._2 / totalWeight
+    double flatMap (d ⇒ if (d <= weight1) g1._1 else g2._1)
+  }
 }
 
 trait SGen[+A] {
@@ -61,7 +77,9 @@ case class Gen[A](sample: State[RNG,A]) {
     *   Implement flatMap, and then use it to implement this more dynamic
     *   version of listOfN. Put flatMap and listOfN in the Gen class.
     */
-  def flatMap[B](f: A => Gen[B]): Gen[B] = Gen(sample.flatMap(a ⇒ f(a).sample))
+  def flatMap[B](f: A => Gen[B]): Gen[B] = Gen(sample flatMap (a ⇒ f(a).sample))
+
+  def map[B](f: A => B): Gen[B] = Gen(sample map f)
 
   def listOfN(size: Gen[Int]): Gen[List[A]] =
     size flatMap { n ⇒
