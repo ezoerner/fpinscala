@@ -144,6 +144,10 @@ sealed trait Stream[+A] {
       case _                            ⇒ None
     }
 
+  // special case of `zip`
+  def zip[B](s2: Stream[B]): Stream[(A,B)] =
+    zipWith(s2)((_,_))
+
   // TODO test this vs the version in the answers
   def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] = {
     unfold((this, s2)) {
