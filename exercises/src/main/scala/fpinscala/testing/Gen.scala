@@ -7,17 +7,43 @@ The library developed in this chapter goes through several iterations. This file
 shell, which you can fill in and modify while working through the chapter.
 */
 
-trait Prop {
+object Prop {
+  type FailedCase = String
+  type SuccessCount = Int
+  type TestCases = Int
 
-  def check: Boolean
-
-  def &&(prop: Prop): Prop = new Prop {
-    override def check: Boolean = Prop.this.check && prop.check
+  sealed trait Result {
+    def isFalsified: Boolean
   }
+
+  case object Passed extends Result {
+    def isFalsified = false
+  }
+
+  case class Falsified(failure: FailedCase, successes: SuccessCount)
+      extends Result {
+    def isFalsified = true
+  }
+
+  def forAll[A](gen: Gen[A])(f: A => Boolean): Prop = ???
 }
 
-object Prop {
-  def forAll[A](gen: Gen[A])(f: A => Boolean): Prop = ???
+import Prop._
+case class Prop(run: (TestCases, RNG) ⇒ Result) {
+  def &&(p: Prop): Prop = Prop { (testCases, rng) ⇒
+    run(testCases, rng) match {
+      case Passed ⇒ p.run(testCases, rng)
+      case result ⇒ result
+    }
+  }
+
+  def ||(p: Prop): Prop = Prop { (testCases, rng) ⇒
+    run(testCases, rng) match {
+      case Falsified(_, _) ⇒
+        p.run(testCases, rng)
+      case result ⇒ result
+    }
+  }
 }
 
 object Gen {
