@@ -94,9 +94,7 @@ object Gen {
   }
 }
 
-trait SGen[+A] {
-
-}
+case class SGen[+A](forSize: Int ⇒ Gen[A])
 
 case class Gen[A](sample: State[RNG,A]) {
   /** Exercise 8.6
@@ -111,6 +109,12 @@ case class Gen[A](sample: State[RNG,A]) {
     size flatMap { n ⇒
       Gen.listOfN(n, this)
     }
+
+  /** Exercise 8.10
+    * Implement helper functions for converting Gen to SGen.
+    * You can add this as a method on Gen.
+    */
+  def unsized: SGen[A] = SGen(_ ⇒ this)
 }
 
 /*
