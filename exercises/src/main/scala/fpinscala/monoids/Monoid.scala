@@ -1,8 +1,8 @@
 package fpinscala.monoids
 
 import fpinscala.parallelism.Nonblocking._
-import fpinscala.parallelism.Nonblocking.Par.toParOps // infix syntax for `Par.map`, `Par.flatMap`, etc
-import language.higherKinds
+
+import scala.language.higherKinds
 
 trait Monoid[A] {
   def op(a1: A, a2: A): A
@@ -21,13 +21,25 @@ object Monoid {
     val zero = Nil
   }
 
-  val intAddition: Monoid[Int] = sys.error("todo")
+  lazy val intAddition: Monoid[Int] = new Monoid[Int] {
+    def op(a1: Int, b1: Int) = a1 + b1
+    val zero = 0
+  }
 
-  val intMultiplication: Monoid[Int] = sys.error("todo")
+  lazy val intMultiplication: Monoid[Int] = new Monoid[Int] {
+    def op(a1: Int, b1: Int) = a1 * b1
+    val zero = 1
+  }
 
-  val booleanOr: Monoid[Boolean] = sys.error("todo")
+  lazy val booleanOr: Monoid[Boolean] = new Monoid[Boolean] {
+    def op(a1: Boolean, b1: Boolean) = a1 || b1
+    val zero = false
+  }
 
-  val booleanAnd: Monoid[Boolean] = sys.error("todo")
+  lazy val booleanAnd: Monoid[Boolean] = new Monoid[Boolean] {
+    def op(a1: Boolean, b1: Boolean) = a1 && b1
+    val zero = true
+  }
 
   def optionMonoid[A]: Monoid[Option[A]] = sys.error("todo")
 
@@ -41,7 +53,6 @@ object Monoid {
   // data type from Part 2.
 
   import fpinscala.testing._
-  import Prop._
   def monoidLaws[A](m: Monoid[A], gen: Gen[A]): Prop = sys.error("todo")
 
   def trimMonoid(s: String): Monoid[String] = sys.error("todo")
@@ -68,13 +79,13 @@ object Monoid {
   case class Stub(chars: String) extends WC
   case class Part(lStub: String, words: Int, rStub: String) extends WC
 
-  def par[A](m: Monoid[A]): Monoid[Par[A]] = 
+  def par[A](m: Monoid[A]): Monoid[Par[A]] =
     sys.error("todo")
 
-  def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] = 
-    sys.error("todo") 
+  def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] =
+    sys.error("todo")
 
-  val wcMonoid: Monoid[WC] = sys.error("todo")
+  lazy val wcMonoid: Monoid[WC] = sys.error("todo")
 
   def count(s: String): Int = sys.error("todo")
 
@@ -92,7 +103,6 @@ object Monoid {
 }
 
 trait Foldable[F[_]] {
-  import Monoid._
 
   def foldRight[A, B](as: F[A])(z: B)(f: (A, B) => B): B =
     sys.error("todo")
