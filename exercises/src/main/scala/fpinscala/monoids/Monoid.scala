@@ -5,8 +5,16 @@ import fpinscala.parallelism.Nonblocking._
 import scala.language.higherKinds
 
 trait Monoid[A] {
+  self ⇒
+
   def op(a1: A, a2: A): A
   def zero: A
+
+  // We can get the dual of any monoid just by flipping the `op`.
+  def dual: Monoid[A] = new Monoid[A] {
+    def op(x: A, y: A): A = self.op(y, x)
+    override val zero = self.zero
+  }
 }
 
 object Monoid {
@@ -41,7 +49,10 @@ object Monoid {
     val zero = true
   }
 
-  def optionMonoid[A]: Monoid[Option[A]] = sys.error("todo")
+  def optionMonoid[A]: Monoid[Option[A]] = new Monoid[Option[A]] {
+    def op(a1: Option[A], b1: Option[A]) = a1 orElse b1 // or the "dual" monoid is b1 orElse a1
+    val zero = None
+  }
 
   def endoMonoid[A]: Monoid[A => A] = sys.error("todo")
 
