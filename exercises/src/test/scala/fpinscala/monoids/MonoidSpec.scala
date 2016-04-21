@@ -171,4 +171,23 @@ class MonoidSpec extends FlatSpec with PropertyChecks with Matchers with TypeChe
     val monoids = table(monoid)
     identityLaw(monoids)
   }
+
+  behavior of "Int endoMonoid"
+
+  // equals isn't implemented for functions
+  ignore should "follow associative law in `op`" in {
+    type A = Int
+    val monoid = endoMonoid[Int]
+
+    val monoids = table(monoid)
+    assocLaw(monoids)
+  }
+
+  ignore should "follow identity law in 'zero'" in {
+    type A = Int
+    val monoid = endoMonoid[Int]
+
+    val monoids = table(monoid)
+    identityLaw(monoids)
+  }
 }
