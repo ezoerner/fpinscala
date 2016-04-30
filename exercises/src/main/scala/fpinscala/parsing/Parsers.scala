@@ -14,8 +14,6 @@ trait Parsers[Parser[+_]] { self => // so inner classes may call methods of trai
 
   def flatMap[A,B](p: Parser[A])(f: A => Parser[B]): Parser[B]
   def succeed[A](a: A): Parser[A]
-
-
 }
 
 case class Location(input: String, offset: Int = 0) {
