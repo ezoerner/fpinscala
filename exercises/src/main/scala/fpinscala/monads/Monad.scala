@@ -33,8 +33,15 @@ trait Monad[M[_]] extends Functor[M] {
 
   def map[A,B](ma: M[A])(f: A => B): M[B] =
     flatMap(ma)(a => unit(f(a)))
+
   def map2[A,B,C](ma: M[A], mb: M[B])(f: (A, B) => C): M[C] =
     flatMap(ma)(a => map(mb)(b => f(a, b)))
+/*  conceptually
+    for {
+      a ← ma
+      b ← mb
+    } yield f(a, b)
+*/
 
   def sequence[A](lma: List[M[A]]): M[List[A]] = traverse(lma)(identity)
 
@@ -98,7 +105,7 @@ object Monad {
 
   def stateMonad[S] = ???
 
-  val idMonad: Monad[Id] = ???
+  //val idMonad: Monad[Id] = ???
 
   def readerMonad[R] = ???
 }

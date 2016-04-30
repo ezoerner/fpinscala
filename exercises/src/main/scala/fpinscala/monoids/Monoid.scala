@@ -78,7 +78,7 @@ object Monoid {
   def foldMap[A, B](as: List[A], m: Monoid[B])(f: A => B): B =
     as.foldLeft(m.zero)((acc, elm) ⇒ m.op(acc, f(elm)))
 
-  def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B = {
+  def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
     foldMap(as, endoMonoid[B])(f.curried)(z)
 
   def foldLeft[A, B](as: List[A])(z: B)(f: (B, A) => B): B =
@@ -86,7 +86,7 @@ object Monoid {
 
   def foldMapV[A, B](as: IndexedSeq[A], m: Monoid[B])(f: A => B): B =
     sys.error("todo")
-f
+
   def ordered(ints: IndexedSeq[Int]): Boolean =
     sys.error("todo")
 
