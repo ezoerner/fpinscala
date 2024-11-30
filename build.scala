@@ -6,3 +6,4 @@
 //> using options -Ykind-projector:underscores
 
 //> using dep org.scalameta::munit:1.0.2
+//> using dep org.scalameta::munit-scalacheck:1.0.0
